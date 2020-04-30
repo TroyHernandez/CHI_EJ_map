@@ -1,12 +1,9 @@
 # Chicago Environmental Justice Communities Map
 
 
-[This code](https://github.com/TroyHernandez/CHI_EJ_map) generates [a map](https://troyhernandez.shinyapps.io/IL_EJ_map/) that visualizes the US EPA EnviroScreen data for 2019. It is based on [my previous volunteer work](https://github.com/TroyHernandez/IL_EJ_map) for the IL EPA, the Illinois Power Agency, and the [Future Jobs Energy Act](https://www.illinois.gov/sites/ipa/Pages/Renewable_Resources.aspx).
+This is a visualization the US EPA EnviroScreen data for Chicago in 2019. The EnviroScreen metric combines environmental and demographic data into a single, easy to use metric for identifying environmental justice communities.
 
-Here is what the Illinois Power Agency said about calculating which communities met its “EJ criteria”:
-
-> The Agency would then weight each factor using an approach adapted from CalEnviroScreen: Census tracts would be ranked for each environmental and demographic indicator, a resulting percentile score would be found for each tract, and the percentile scores would be averaged, resulting in an environmental and demographic score for each tract.  The two averages would be multiplied together to determine a score.
-
+> Census tracts are ranked for 11 environmental and 8 demographic indicators, a resulting percentile score is then found for each tract. The percentile scores are then averaged, resulting in an environmental and demographic score for each tract.  The two averages are multiplied together to determine the *EnviroScore*.
 
 The environmental indicators are:
 
@@ -31,4 +28,4 @@ The demographic indicators are:
 5. Individuals under age 5
 6. Individuals over age 64
 
-This code is a modified version of [Gene Leynes map demo](https://github.com/geneorama/wnv_map_demo) as presented at the [Chicago R User Group October 14th Lightening talks](https://github.com/Chicago-R-User-Group/Oct.-14th-Short-Talks).  Thanks Gene!
+The code that generates the maps and this page are available [here.](https://github.com/TroyHernandez/CHI_EJ_map)  It is based on [my previous volunteer work](https://github.com/TroyHernandez/IL_EJ_map) for the IL EPA, the Illinois Power Agency, and the [Future Jobs Energy Act](https://www.illinois.gov/sites/ipa/Pages/Renewable_Resources.aspx).

@@ -1,7 +1,6 @@
 ---
-title: "Chicago EJ Map"
+title: "Chicago Environmental Justice Communities Map"
 author: "Troy Hernandez"
-date: "March 25, 2019"
 output: html_document
 ---
 
@@ -9,14 +8,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Chicago EJ Map
 
-```{r}
+This is a visualization the US EPA EnviroScreen data for Chicago in 2019. The EnviroScreen metric combines environmental and demographic data into a single, easy to use metric for identifying environmental justice communities.
+
+> Census tracts are ranked for 11 environmental and 8 demographic indicators, a resulting percentile score is then found for each tract. The percentile scores are then averaged, resulting in an environmental and demographic score for each tract.  The two averages are multiplied together to determine the *EnviroScore*.
+
+```{r, cache=TRUE, echo=FALSE}
 library(leaflet)
 library(sp)
 # census_tracts <- readRDS("data/censustracts_IL.Rds")
-dat.shiny <- readRDS("data/ChicagoShinyDat.RDS")
-dat.shiny.pct <- readRDS("data/ChicagoShinyDatPercentile.RDS")
+dat.shiny <- readRDS("data/ChicagoShinyDat_2019.RDS")
+dat.shiny.pct <- readRDS("data/ChicagoShinyDatPercentile_2019.RDS")
 chicago_tracts <- geojsonio::geojson_read("data/ChicagoCensusTracts.geojson",
                                           what = "sp")
 chicago_tracts$EnviroScore <- 0
@@ -25,9 +27,119 @@ for(i in 1:length(chicago_tracts)){
   chicago_tracts$EnviroScore[i] <- dat.shiny[which(as.character(dat.shiny$CensusTract) == as.character(chicago_tracts$geoid10[i])), "EnviroScore"]
   chicago_tracts$EnviroScorePct[i] <- dat.shiny.pct[which(as.character(dat.shiny.pct$CensusTract) == as.character(chicago_tracts$geoid10[i])), "EnviroScore"]
 }
+
+chicago_tracts$EnvironmentalIndicator <- 0
+chicago_tracts$EnvironmentalIndicatorPct <- 0
+for(i in 1:length(chicago_tracts)){
+  chicago_tracts$EnvironmentalIndicator[i] <- dat.shiny[which(as.character(dat.shiny$CensusTract) == as.character(chicago_tracts$geoid10[i])), "EnvironmentalIndicator"]
+  chicago_tracts$EnvironmentalIndicatorPct[i] <- dat.shiny.pct[which(as.character(dat.shiny.pct$CensusTract) == as.character(chicago_tracts$geoid10[i])), "EnvironmentalIndicator"]
+}
+
+chicago_tracts$DemographicIndicator  <- 0
+chicago_tracts$DemographicIndicatorPct <- 0
+for(i in 1:length(chicago_tracts)){
+  chicago_tracts$DemographicIndicator[i] <- dat.shiny[which(as.character(dat.shiny$CensusTract) == as.character(chicago_tracts$geoid10[i])), "DemographicIndicator"]
+  chicago_tracts$DemographicIndicatorPct[i] <- dat.shiny.pct[which(as.character(dat.shiny.pct$CensusTract) == as.character(chicago_tracts$geoid10[i])), "DemographicIndicator"]
+}
+
 ```
 
-```{r}
+## Environmental Indicator Map
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(leaflet)
+pal <- leaflet::colorNumeric("RdBu", domain = c(min(chicago_tracts$EnvironmentalIndicator),
+                                       max(chicago_tracts$EnvironmentalIndicator)),
+                    reverse = TRUE)
+pal2 <- leaflet::colorNumeric("RdBu", domain = c(0, 1), reverse = TRUE)
+
+leaflet(chicago_tracts) %>%
+  addTiles(group = "EnvironmentalIndicator") %>%
+  addTiles(group = "EnvironmentalIndicatorPct") %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.3, fillOpacity = .75,
+              fillColor = ~pal(EnvironmentalIndicator),
+              label = ~paste0("EnvironmentalIndicator: ", round(EnvironmentalIndicator, 2)),
+              group = "EnvironmentalIndicator") %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.3, fillOpacity = .75,
+              fillColor = ~pal2(EnvironmentalIndicatorPct),
+              label = ~paste0("EnvironmentalIndicatorPct: ", round(EnvironmentalIndicator, 2)),
+              group = "EnvironmentalIndicatorPct") %>%
+  addLegend(pal = pal, values = ~(chicago_tracts$EnvironmentalIndicator), opacity = 1.0,
+            title = "EnvironmentalIndicator", group = "EnvironmentalIndicator") %>%
+  addLegend(pal = pal2, values = ~(chicago_tracts$EnvironmentalIndicatorPct), opacity = 1.0,
+            title = "EnvironmentalIndicator (%)", group = "EnvironmentalIndicatorPct") %>%
+  addLayersControl(
+    baseGroups = c("EnvironmentalIndicator", "EnvironmentalIndicatorPct"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+**A higher score means more pollution.**
+
+The Environmental Indicator is a combination of:
+
+1. National Scale Air Toxics Assessment Air Toxics Cancer Risk
+2. National Scale Air Toxics Assessment Respiratory Hazard Index
+3. National Scale Air Toxics Assessment Diesel PM (DPM)
+4. Particulate Matter (PM2.5)
+5. Ozone
+6. Lead Paint Indicator
+7. Traffic Proximity and Volume
+8. Proximity to Risk Management Plan Sites
+9. Proximity to Treatment Storage and Disposal Facilities
+10. Proximity to National Priorities List Sites
+11. Proximity to Major Direct Water Dischargers
+
+**Caution: Technical Details**: *Census tracts are ranked for each environmental indicator, a resulting percentile score is found for each tract, and the percentile scores are then averaged. This results in the EnvironmentalIndicator score for each tract. If we then rank and derive the percentile scores of the Environmental Indicator, we get the EnvironmentalIndicatorPct.*
+
+## Demographic Indicator Map
+
+```{r, echo=FALSE, warning=FALSE}
+pal <- colorNumeric("RdBu", domain = c(min(chicago_tracts$DemographicIndicator),
+                                       max(chicago_tracts$DemographicIndicator)),
+                    reverse = TRUE)
+pal2 <- colorNumeric("RdBu", domain = c(0, 1), reverse = TRUE)
+
+leaflet(chicago_tracts) %>%
+  addTiles(group = "DemographicIndicator") %>%
+  addTiles(group = "DemographicIndicatorPct") %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.3, fillOpacity = .75,
+              fillColor = ~pal(DemographicIndicator),
+              label = ~paste0("DemographicIndicator: ", round(DemographicIndicator, 2)),
+              group = "DemographicIndicator") %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.3, fillOpacity = .75,
+              fillColor = ~pal2(DemographicIndicatorPct),
+              label = ~paste0("DemographicIndicatorPct: ", round(DemographicIndicator, 2)),
+              group = "DemographicIndicatorPct") %>%
+  addLegend(pal = pal, values = ~(chicago_tracts$DemographicIndicator), opacity = 1.0,
+            title = "DemographicIndicator", group = "DemographicIndicator") %>%
+  addLegend(pal = pal2, values = ~(chicago_tracts$DemographicIndicatorPct), opacity = 1.0,
+            title = "DemographicIndicator (%)", group = "DemographicIndicatorPct") %>%
+  addLayersControl(
+    baseGroups = c("DemographicIndicator", "DemographicIndicatorPct"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+**A higher score means a more vulnerable population.**
+
+The demographic indicators are:
+
+1. Percent low-income
+2. Percent minority
+3. Less than high school education
+4. Linguistic isolation
+5. Individuals under age 5
+6. Individuals over age 64
+
+Again...
+
+**Caution: Technical Details**: *Census tracts are ranked for each demographic indicator, a resulting percentile score is found for each tract, and the percentile scores are then averaged. This results in the DemogrpahicIndicator score for each tract. If we then rank and derive the percentile scores of the Demographic Indicator, we get the DemographicIndicatorPct.*
+
+
+## The EnviroScore Map
+
+```{r, echo=FALSE, warning=FALSE}
 pal <- colorNumeric("RdBu", domain = c(min(chicago_tracts$EnviroScore),
                                        max(chicago_tracts$EnviroScore)),
                     reverse = TRUE)
@@ -54,12 +166,11 @@ leaflet(chicago_tracts) %>%
   )
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
- 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+**A higher score means a more vulnerable population in a more polluted neighborhood.**
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Again...
+
+**Caution: Technical Details**: *Census tract DemographicIndicators are multiplied by the EnvironmentalIndicators. If we then rank and derive the percentile scores of the EnviroScore, we get the EnviroScorePct.*
+
+The code that generates the maps and this page are available [here.](https://github.com/TroyHernandez/CHI_EJ_map)  It is based on [my previous volunteer work](https://github.com/TroyHernandez/IL_EJ_map) for the IL EPA, the Illinois Power Agency, and the [Future Jobs Energy Act](https://www.illinois.gov/sites/ipa/Pages/Renewable_Resources.aspx).
