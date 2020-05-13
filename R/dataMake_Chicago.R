@@ -5,7 +5,7 @@ library(leaflet)
 ## LOAD DATA
 ##==============================================================================
 
-# Download from: ftp://newftp.epa.gov/EJSCREEN/2017/
+# Download from: ftp://newftp.epa.gov/EJSCREEN/2019/
 dat <- read.csv("data/EJSCREEN_2019_USPR.csv", stringsAsFactors = FALSE)
 chicago_tracts <- geojsonio::geojson_read("data/ChicagoCensusTracts.geojson",
                                           what = "sp")
