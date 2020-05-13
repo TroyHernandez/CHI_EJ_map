@@ -318,6 +318,10 @@ docker build –t shiny/geo:v1 .
 docker build --tag shiny/geo:1.0 .
 ```
 
+```
+docker run -d --user shiny -p 3838:3838 shiny/geo:1.0
+```
+
 ## Posting Dockerfile to a container registry
 
 ### Login to IBM Cloud

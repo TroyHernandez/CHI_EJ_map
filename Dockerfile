@@ -10,7 +10,7 @@ RUN apt-get update -qq && apt-get install -y \
   libgdal-dev
 
 RUN R -e 'install.packages(c("sf"))'
-RUN git clone https://github.com/troyhernandez/CHI_EJ_map /srv/shinyapps/CHI_EJ_map
+RUN git clone https://github.com/troyhernandez/CHI_EJ_map /srv/shiny-server/CHI_EJ_map
 
 EXPOSE 3838
 
