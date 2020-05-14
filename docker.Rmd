@@ -347,3 +347,8 @@ oc login --token=5NzSmqzQr-aGn_iUO3TdASv4QabahuCZAv9eO91FzI8 --server=https://c1
 ```
 
 ## Deploying the Helm chart
+
+```{bash}
+docker pull troyhernandez/chi_ej_map:v1
+sudo docker run -d --name chi_ej_map -p 3838:3838 troyhernandez/chi_ej_map:v1
+```
