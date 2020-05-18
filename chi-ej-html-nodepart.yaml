@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chi-ej-html-service
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+  type: NodePort
+  selector:
+    app: chi_ej_html

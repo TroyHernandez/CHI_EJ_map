@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chi-ej-html-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: chi_ej_html
+  template:
+    metadata:
+      labels:
+        app: chi_ej_html
+    spec:
+      containers:
+      - name: chi-ej-html
+        image: troyhernandez/chi_ej_html:v1
